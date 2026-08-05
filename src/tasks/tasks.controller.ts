@@ -1,6 +1,7 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { Task } from './task.model';
+import { Task, TaskStatus } from './task.model';
+import {v4 as uuid} from 'uuid'
 
 @Controller('tasks')
 export class TasksController {
