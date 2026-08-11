@@ -10,4 +10,7 @@ export class Task {
 
   @Column()
   status: TaskStatus;
+
+  @Column({nullable: true})
+  description: string
 }

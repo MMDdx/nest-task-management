@@ -12,7 +12,7 @@ export class TasksController {
 
   @Get()
   async getTasks(@Query() filterDto: GetTasksFilterDto): Promise<Task[]> {
-    return await this.tasksService.getTasks();
+    return await this.tasksService.getTasks(filterDto);
   }
 
   @Get('/:id')
