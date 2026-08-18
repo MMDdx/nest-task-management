@@ -30,4 +30,8 @@ export class UsersRepository {
     }
   }
 
+  async findOne(username: string): Promise<User | null> {
+    return this.repository.findOne({where: {username}});
+  }
+
 }
