@@ -9,27 +9,27 @@ import { User } from '../auth/user.entity';
 export class TasksService {
   constructor(private taskRepository: TasksRepository) {}
 
-  getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
-    return this.taskRepository.getTasks(filterDto);
+  getTasks(filterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
+    return this.taskRepository.getTasks(filterDto, user);
   }
 
   async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
     return await this.taskRepository.createTask(createTaskDto, user);
   }
 
-  async getTaskById(id: string): Promise<Task> {
-    const found = await this.taskRepository.findOne(id);
+  async getTaskById(id: string, user: User): Promise<Task> {
+    const found = await this.taskRepository.findOne(id,user);
     if (!found) {
       throw new NotFoundException();
     }
     return found;
   }
 
-  async deleteTaskById(id: string) {
-    return this.taskRepository.DeleteTaskById(id);
+  async deleteTaskById(id: string, user: User): Promise<void> {
+    return this.taskRepository.DeleteTaskById(id,user);
   }
 
-  async updateTaskById(id: string, field: string, body): Promise<Task> {
-    return await this.taskRepository.updateTaskById(id, body, field);
+  async updateTaskById(id: string, field: string, body, user:User): Promise<Task> {
+    return await this.taskRepository.updateTaskById(id, body, field, user);
   }
 }

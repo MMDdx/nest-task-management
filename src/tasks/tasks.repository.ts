@@ -19,8 +19,8 @@ export class TasksRepository {
     return this.repository.find();
   }
 
-  async findOne(id: string) {
-    return this.repository.findOne({where: {id}});
+  async findOne(id: string, user: User): Promise<Task | null> {
+    return this.repository.findOne({where: {id, user}});
   }
 
   async createTask(task: CreateTaskDto, user: User) {
@@ -30,15 +30,15 @@ export class TasksRepository {
     return this.repository.save(newTask);
   }
 
-  async DeleteTaskById(id: string) {
-    const res = await this.repository.delete(id)
+  async DeleteTaskById(id: string, user: User) {
+    const res = await this.repository.delete({id, user});
     if (res.affected === 0) {
       throw new NotFoundException(`task with id ${id} not found`);
     }
   }
 
-  async updateTaskById(id: string, body, field:string): Promise<Task> {
-    const task = await this.findOne(id);
+  async updateTaskById(id: string, body, field:string, user:User): Promise<Task> {
+    const task = await this.findOne(id, user);
     if (!task) {
       throw new NotFoundException(`task with id ${id} not found`);
     }
@@ -46,17 +46,17 @@ export class TasksRepository {
     return this.repository.save(task);
   }
 
-  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]>{
+  async getTasks(filterDto: GetTasksFilterDto, user: User): Promise<Task[]>{
     const {status , search} = filterDto;
     const query = this.repository.createQueryBuilder('task');
 
-
+    query.where({user})
     if (status) {
       query.andWhere('task.status = :status', {status});
     }
     if (search) {
       query.andWhere(
-        'LOWER(task.title) LIKE :search OR LOWER(task.description) LIKE :search',
+        '(LOWER(task.title) LIKE :search OR LOWER(task.description) LIKE :search)',
         { search : `%${search.toLowerCase()}%` },
       )
     }
