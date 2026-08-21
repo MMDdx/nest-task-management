@@ -1,5 +1,10 @@
 // tasks/tasks.repository.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
@@ -14,7 +19,7 @@ export class TasksRepository {
     @InjectRepository(Task)
     private readonly repository: Repository<Task>, // Internal default repo
   ) {}
-
+  private logger = new Logger('TasksRepository', {timestamp: true});
   async find(): Promise<Task[]> {
     return this.repository.find();
   }
@@ -60,8 +65,13 @@ export class TasksRepository {
         { search : `%${search.toLowerCase()}%` },
       )
     }
+    try{
+      const tasks = await query.getMany()
+      return tasks;
+    } catch (err){
+      this.logger.error(`failed to get tasks for user ${user.username}: ${err},`,err.stack);
+      throw new InternalServerErrorException(err.message);
+    }
 
-    const tasks = await query.getMany()
-    return tasks;
   }
 }
