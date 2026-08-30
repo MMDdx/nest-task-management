@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    ports:
+      - "5432:5432"   # Exposes PostgreSQL on your host machine (optional)
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task-management
+    volumes:
+      - postgres-data:/var/lib/postgresql/data   # Persists data even if container stops
+
+  # 2. Your NestJS Application
+  app:
+    build: .   # Builds using your Dockerfile
+    container_name: nest-app
+    ports:
+      - "3000:3000"   # Maps host port 3000 to container port 3000
+    depends_on:
+      - postgres
+    environment:
+      - NODE_ENV=production
+      # ⚠️ CRITICAL: Use 'postgres' (the service name) as host, NOT localhost
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=task-management
+    volumes:
+      - .:/usr/src/app          # Mounts your code for live updates (optional)
+      - /usr/src/app/node_modules # Prevents overwriting node_modules
+
+volumes:
+  postgres-data:
